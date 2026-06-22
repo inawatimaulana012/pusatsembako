@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.nama }} - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Product Image -->
+        <div class="col-md-6">
+            {% if product.gambar %}
+                <img src="/writable/uploads/{{ product.gambar }}" class="img-fluid rounded" alt="{{ product.nama }}" style="max-height: 500px; object-fit: cover;">
+            {% else %}
+                <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 500px;">
+                    <i class="bi bi-image" style="font-size: 5rem; color: #ccc;"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-md-6">
+            <h1 class="mb-2" style="color: #2E7D32;">{{ product.nama }}</h1>
+            <p class="text-muted mb-3">
+                <small><i class="bi bi-tag"></i> {{ product.category.nama }}</small>
+            </p>
+
+            <div class="mb-4">
+                <p>{{ product.deskripsi }}</p>
+            </div>
+
+            <!-- Variants Selection -->
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-diagram-3"></i> Pilih Varian</h5>
+                </div>
+                <div class="card-body">
+                    <form id="addToCartForm">
+                        <div class="mb-3">
+                            <label for="variant" class="form-label">Varian *</label>
+                            <select class="form-select" id="variant" name="variant_id" required onchange="checkStockAvailability('variant')">
+                                <option value="">-- Pilih Varian --</option>
+                                {% for variant in variants %}
+                                <option value="{{ variant.id }}" data-stok="{{ variant.stok }}">
+                                    {{ variant.nama }}
+                                    {% if variant.ukuran %} ({{ variant.ukuran }}){% endif %}
+                                    - {{ variant.harga|currency }}
+                                    {% if variant.stok == 0 %} [HABIS]{% else %} [Stok: {{ variant.stok }}]{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="qty" class="form-label">Jumlah *</label>
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('qty').value = Math.max(1, parseInt(document.getElementById('qty').value) - 1)">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="number" class="form-control text-center" id="qty" name="qty" value="1" min="1" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('qty').value = parseInt(document.getElementById('qty').value) + 1">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-lg" style="width: 100%; background-color: #2E7D32; border: none; margin-bottom: 10px;" onclick="addToCartFormSubmit()">
+                            <i class="bi bi-cart-plus"></i> Tambah ke Keranjang
+                        </button>
+
+                        <a href="{{ url_for('customer_cart') }}" class="btn btn-secondary btn-lg" style="width: 100%;">
+                            <i class="bi bi-cart"></i> Lihat Keranjang
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="row mt-5">
+        <div class="col-md-12">
+            <h3 class="mb-4"><i class="bi bi-relation"></i> Produk Sejenis</h3>
+        </div>
+    </div>
+    <div class="row">
+        {% for related in related_products %}
+        <div class="col-md-3 col-sm-6 mb-4">
+            <div class="card h-100 shadow-sm product-card">
+                {% if related.gambar %}
+                    <img src="/writable/uploads/{{ related.gambar }}" class="card-img-top product-image" alt="{{ related.nama }}">
+                {% else %}
+                    <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                        <i class="bi bi-image" style="font-size: 2rem; color: #ccc;"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title product-name">{{ related.nama }}</h5>
+                    {% if related.variants.first() %}
+                    <p class="card-text">
+                        <span class="product-price">{{ related.variants.first().harga|currency }}</span>
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="card-footer bg-white border-top">
+                    <a href="{{ url_for('customer_product_detail', product_id=related.id) }}" class="btn btn-primary btn-sm" style="width: 100%; background-color: #2E7D32; border: none;">
+                        <i class="bi bi-eye"></i> Lihat Detail
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function addToCartFormSubmit() {
+    const form = document.getElementById('addToCartForm');
+    const variantId = document.getElementById('variant').value;
+    const qty = parseInt(document.getElementById('qty').value);
+
+    if (!variantId) {
+        showToast('error', 'Silakan pilih varian terlebih dahulu');
+        return;
+    }
+
+    addToCart(variantId, qty);
+}
+</script>
+{% endblock %}

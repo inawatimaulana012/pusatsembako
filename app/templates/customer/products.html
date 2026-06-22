@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Produk - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar Filters -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-funnel"></i> Filter</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="mb-3">Kategori</h6>
+                    <div class="list-group">
+                        <a href="{{ url_for('customer_products') }}" class="list-group-item list-group-item-action {% if not category_id %}active{% endif %}">
+                            Semua Kategori
+                        </a>
+                        {% for category in categories %}
+                        <a href="{{ url_for('customer_products', category=category.id) }}" class="list-group-item list-group-item-action {% if category_id == category.id %}active{% endif %}">
+                            {{ category.nama }}
+                        </a>
+                        {% endfor %}
+                    </div>
+
+                    <h6 class="mt-4 mb-3">Urutkan</h6>
+                    <div class="btn-group-vertical w-100">
+                        <a href="{{ url_for('customer_products', category=category_id, sort='newest') }}" class="btn btn-outline-secondary text-start {% if sort == 'newest' %}active{% endif %}">
+                            Terbaru
+                        </a>
+                        <a href="{{ url_for('customer_products', category=category_id, sort='popular') }}" class="btn btn-outline-secondary text-start {% if sort == 'popular' %}active{% endif %}">
+                            Paling Populer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products List -->
+        <div class="col-md-9">
+            <!-- Search Bar -->
+            <div class="mb-4">
+                <form method="GET" action="{{ url_for('customer_products') }}">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="search" placeholder="Cari produk..." value="{{ search }}">
+                        <button class="btn btn-primary" type="submit" style="background-color: #2E7D32; border: none;">
+                            <i class="bi bi-search"></i> Cari
+                        </button>
+                    </div>
+                </form>
+                <div id="search-results" class="mt-2"></div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="row">
+                {% if products.items %}
+                    {% for product in products.items %}
+                    <div class="col-md-4 col-sm-6 mb-4">
+                        <div class="card h-100 shadow-sm product-card">
+                            {% if product.gambar %}
+                                <img src="/writable/uploads/{{ product.gambar }}" class="card-img-top product-image" alt="{{ product.nama }}">
+                            {% else %}
+                                <div class="card-img-top product-image bg-light d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-image" style="font-size: 2rem; color: #ccc;"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title product-name">{{ product.nama }}</h5>
+                                <p class="card-text text-muted small">{{ product.category.nama }}</p>
+                                <p class="card-text small">{{ product.deskripsi[:80] }}...</p>
+                                {% if product.variants.first() %}
+                                <p class="card-text">
+                                    <span class="product-price">{{ product.variants.first().harga|currency }}</span>
+                                </p>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer bg-white border-top">
+                                <a href="{{ url_for('customer_product_detail', product_id=product.id) }}" class="btn btn-primary btn-sm" style="width: 100%; background-color: #2E7D32; border: none;">
+                                    <i class="bi bi-eye"></i> Lihat Detail
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12">
+                        <div class="alert alert-info" role="alert">
+                            <i class="bi bi-info-circle"></i> Tidak ada produk yang sesuai dengan pencarian Anda.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Pagination -->
+            {% if products.pages > 1 %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_products', page=products.prev_num, category=category_id, search=search, sort=sort) }}">
+                            <i class="bi bi-chevron-left"></i> Sebelumnya
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in products.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num == products.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('customer_products', page=page_num, category=category_id, search=search, sort=sort) }}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('customer_products', page=products.next_num, category=category_id, search=search, sort=sort) }}">
+                            Selanjutnya <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
