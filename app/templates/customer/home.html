@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Beranda - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <!-- Banners Carousel -->
+    {% if banners %}
+    <div id="bannerCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            {% for banner in banners %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                {% if banner.gambar %}
+                    <img src="/writable/uploads/{{ banner.gambar }}" class="d-block w-100" alt="{{ banner.judul }}" style="max-height: 400px; object-fit: cover;">
+                {% else %}
+                    <div class="bg-secondary d-block w-100 p-5 text-white" style="height: 400px; display: flex; align-items: center; justify-content: center;">
+                        <div>
+                            <h2>{{ banner.judul }}</h2>
+                            <p>{{ banner.deskripsi }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+    </div>
+    {% endif %}
+
+    <!-- Categories Section -->
+    <div class="container my-5">
+        <h3 class="mb-4"><i class="bi bi-tags"></i> Kategori Produk</h3>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-4 col-sm-6 mb-3">
+                <a href="{{ url_for('customer_products', category=category.id) }}" class="card h-100 text-decoration-none border-0 shadow-sm" style="transition: all 0.3s;">
+                    <div class="card-body text-center" style="background-color: #F5F5F5; color: #2E7D32;">
+                        <i class="bi bi-bag" style="font-size: 2rem; color: #2E7D32;"></i>
+                        <h5 class="card-title mt-3">{{ category.nama }}</h5>
+                        <p class="card-text text-muted">{{ category.deskripsi[:50] }}...</p>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Featured Products Section -->
+    <div class="container my-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3><i class="bi bi-star"></i> Produk Terbaru</h3>
+            <a href="{{ url_for('customer_products') }}" class="btn btn-outline-primary btn-sm">
+                Lihat Semua <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="card h-100 shadow-sm" style="transition: all 0.3s;">
+                    {% if product.gambar %}
+                        <img src="/writable/uploads/{{ product.gambar }}" class="card-img-top" alt="{{ product.nama }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="card-img-top bg-secondary" style="height: 200px; display: flex; align-items: center; justify-content: center; color: white;">
+                            <i class="bi bi-image" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.nama[:30] }}...</h5>
+                        <p class="card-text text-muted small">{{ product.category.nama }}</p>
+                        <p class="card-text">{{ product.deskripsi[:60] }}...</p>
+                    </div>
+                    <div class="card-footer bg-white border-top">
+                        <a href="{{ url_for('customer_product_detail', product_id=product.id) }}" class="btn btn-primary btn-sm" style="width: 100%; background-color: #2E7D32; border: none;">
+                            <i class="bi bi-eye"></i> Lihat Detail
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="bg-light py-5 mb-5">
+        <div class="container text-center">
+            <h3 style="color: #2E7D32;" class="mb-3"><i class="bi bi-megaphone"></i> Syarat dan Ketentuan</h3>
+            <p class="lead">🚚 <strong>Pengambilan Barang:</strong> Pesanan hanya dapat diambil langsung di Pusat Sembako</p>
+            <p class="lead">💰 <strong>Metode Pembayaran:</strong> Transfer Bank, E-Wallet, atau Cash</p>
+            <p class="lead">⭐ <strong>Program Member:</strong> Dapatkan poin dan reward setiap kali berbelanja</p>
+            <a href="{{ url_for('customer_products') }}" class="btn btn-lg" style="background-color: #2E7D32; color: white;">
+                <i class="bi bi-cart"></i> Mulai Belanja Sekarang
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update cart count on load
+    updateCartCount();
+</script>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Admin - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2><i class="bi bi-speedometer2"></i> Dashboard Admin</h2>
+            <p class="text-muted">Selamat datang {{ user.nama }}</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: #2E7D32;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-box"></i> Total Produk</h5>
+                    <h2>{{ total_products }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: #F9A825;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-diagram-3"></i> Total Varian</h5>
+                    <h2>{{ total_variants }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: #2196F3;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-bag"></i> Total Pesanan</h5>
+                    <h2>{{ total_orders }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white" style="background-color: #4CAF50;">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-people"></i> Total Pelanggan</h5>
+                    <h2>{{ total_customers }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Summary -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-graph-up"></i> Penjualan 30 Hari Terakhir</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Penjualan:</strong> {{ sales_30days.total_sales|currency }}</p>
+                    <p><strong>Jumlah Pesanan:</strong> {{ sales_30days.total_orders }}</p>
+                    <p><strong>Rata-rata Pesanan:</strong> {{ sales_30days.avg_order|currency }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header" style="background-color: #F9A825; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-calendar-today"></i> Penjualan Hari Ini</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Penjualan:</strong> {{ sales_today.total_sales|currency }}</p>
+                    <p><strong>Jumlah Pesanan:</strong> {{ sales_today.total_orders }}</p>
+                    <p><strong>Rata-rata Pesanan:</strong> {{ sales_today.avg_order|currency }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Best Sellers & Low Stock -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-star"></i> Produk Terlaris</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Produk</th>
+                                <th>Terjual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product_name, qty in best_sellers %}
+                            <tr>
+                                <td>{{ product_name }}</td>
+                                <td><span class="badge bg-success">{{ qty }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header" style="background-color: #F44336; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-exclamation-triangle"></i> Stok Menipis (< 5)</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Varian</th>
+                                <th>Stok</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for variant in low_stock %}
+                            <tr>
+                                <td>{{ variant.product.nama }} - {{ variant.nama }}</td>
+                                <td><span class="badge bg-danger">{{ variant.stok }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-clock-history"></i> Pesanan Terbaru</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Pemesan</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Tanggal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td><strong>{{ order.nomor_invoice }}</strong></td>
+                                    <td>{{ order.nama_pemesan }}</td>
+                                    <td>{{ order.total_harga|currency }}</td>
+                                    <td>
+                                        {% if order.status == 'selesai' %}
+                                            <span class="badge bg-success">Selesai</span>
+                                        {% elif order.status == 'menunggu_pembayaran' %}
+                                            <span class="badge bg-warning">Menunggu Pembayaran</span>
+                                        {% elif order.status == 'menunggu_verifikasi' %}
+                                            <span class="badge bg-warning">Menunggu Verifikasi</span>
+                                        {% elif order.status == 'dibatalkan' %}
+                                            <span class="badge bg-danger">Dibatalkan</span>
+                                        {% else %}
+                                            <span class="badge bg-info">{{ order.status|replace('_', ' ')|upper }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('admin_order_detail', order_id=order.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye"></i> Lihat
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h5 class="mb-3"><i class="bi bi-lightning"></i> Akses Cepat</h5>
+            <a href="{{ url_for('admin_products') }}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-box"></i> Kelola Produk
+            </a>
+            <a href="{{ url_for('admin_orders') }}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-bag"></i> Kelola Pesanan
+            </a>
+            <a href="{{ url_for('admin_categories') }}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-tags"></i> Kelola Kategori
+            </a>
+            <a href="{{ url_for('admin_database') }}" class="btn btn-outline-primary me-2">
+                <i class="bi bi-database"></i> Database
+            </a>
+            <a href="{{ url_for('admin_activity_logs') }}" class="btn btn-outline-primary">
+                <i class="bi bi-list-check"></i> Activity Log
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
