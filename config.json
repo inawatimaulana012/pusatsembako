@@ -1,0 +1,54 @@
+{
+  "app_name": "PUSAT SEMBAKO",
+  "app_version": "1.0.0",
+  "app_description": "Sistem Penjualan Produk Sembako dengan Manajemen Inventory dan Member Rewards",
+  "theme": {
+    "primary_color": "#2E7D32",
+    "secondary_color": "#F9A825",
+    "support_white": "#FFFFFF",
+    "support_light_gray": "#F5F5F5",
+    "success": "#4CAF50",
+    "warning": "#FFC107",
+    "danger": "#F44336",
+    "info": "#2196F3"
+  },
+  "payment_methods": {
+    "bank_transfer": {
+      "enabled": true,
+      "account_number": "1234 5678 90",
+      "account_name": "Bapak ABCD",
+      "bank_name": "BCA"
+    },
+    "e_wallet": {
+      "enabled": true,
+      "methods": ["Dana", "ShopeePay", "OVO", "GoPay"],
+      "phone_number": "0888 8888 8888"
+    },
+    "cash": {
+      "enabled": true
+    }
+  },
+  "store_info": {
+    "name": "PUSAT SEMBAKO",
+    "phone": "08XX-XXXX-XXXX",
+    "address": "Jl. Contoh No. 123, Kota",
+    "email": "info@pusatsembako.com",
+    "hours": "08:00 - 17:00"
+  },
+  "upload_settings": {
+    "max_file_size": 5242880,
+    "allowed_extensions": ["jpg", "jpeg", "png", "gif"],
+    "product_image_path": "public/assets/products/",
+    "variant_image_path": "public/assets/variants/",
+    "banner_path": "public/assets/banners/",
+    "logo_path": "public/assets/logos/"
+  },
+  "pagination": {
+    "items_per_page": 10,
+    "dashboard_recent_items": 5
+  },
+  "points_system": {
+    "point_per_rupiah": 0.01,
+    "minimum_purchase_for_points": 10000
+  }
+}
