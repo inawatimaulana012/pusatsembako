@@ -13,19 +13,19 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+# Copy application code
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p writable/uploads writable/logs writable/invoices
-RUN mkdir -p public/assets/products public/assets/variants public/assets/banners public/assets/logos
+RUN mkdir -p writable/uploads writable/logs public/assets/products public/assets/variants public/assets/banners public/assets/logos
 
 # Expose port
 EXPOSE 7860
 
-# Set environment
+# Set environment variables
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
+ENV PYTHONUNBUFFERED=1
 
-# Run application
-CMD ["python", "app.py"]
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--timeout", "120", "--workers", "2", "app:app"]

@@ -1,8 +1,4 @@
-title: PUSAT SEMBAKO - Sistem Penjualan Sembako
-app_file: app.py
-header: mini
-theme: light
-space_id: inawatimaulana012/pusatsembako
-colors:
-  primary: "#2E7D32"
-  secondary: "#F9A825"
+title: PUSAT SEMBAKO
+app_port: 7860
+sdk: docker
+health_check_path: /

@@ -1,66 +1,70 @@
-# PUSAT SEMBAKO - Sistem Penjualan Sembako
+# PUSAT SEMBAKO
 
-Aplikasi web untuk manajemen penjualan produk sembako dengan fitur Admin, Kasir, dan Pembeli.
+Sistem Manajemen Toko Sembako (Grocery Store Management System) berbasis Python Flask.
 
 ## Fitur Utama
 
 ### Admin
-- Dashboard lengkap dengan statistik penjualan
+- Dashboard dengan statistik penjualan
 - Manajemen produk dan kategori
 - Manajemen varian produk
 - Manajemen stok
-- Manajemen kasir dan member
-- Manajemen reward dan poin
-- Manajemen banner promosi
+- Manajemen kasir
+- Manajemen member dan reward
+- Manajemen pesanan dan pembayaran
+- Kelola banner dan logo toko
 - Backup dan restore database
 - Laporan penjualan
 
 ### Kasir
 - Melihat pesanan masuk
-- Verifikasi bukti transfer pembayaran
-- Update status pesanan
+- Verifikasi bukti transfer
+- Ubah status pesanan
+- Konfirmasi pembayaran
 - Cetak invoice
 - Riwayat transaksi
 
 ### Pembeli
-- Browsing katalog produk
-- Pencarian real-time
+- Lihat katalog produk
+- Cari produk real-time
 - Keranjang belanja
-- Checkout dengan berbagai metode pembayaran
-- Riwayat pesanan
-- Status tracking pesanan
-- Program member dan reward
+- Checkout
+- Status pesanan
+- Riwayat pemesanan
+- Member dengan sistem poin dan reward
 
 ## Teknologi
 
 - **Backend**: Python 3.11 + Flask
-- **Database**: SQLite
-- **Frontend**: Bootstrap 5 + Jinja2
-- **ORM**: SQLAlchemy
+- **Database**: SQLite dengan SQLAlchemy ORM
+- **Frontend**: Bootstrap 5 + Jinja2 Templates
+- **File Management**: Werkzeug
+- **Deployment**: Docker + Gunicorn
 
 ## Struktur Folder
 
 ```
-project-root/
+projekt-root/
 ├── app/
 │   ├── templates/
 │   │   ├── admin/
 │   │   ├── cashier/
 │   │   ├── customer/
-│   │   └── base.html
+│   │   └── auth/
 │   └── static/
 │       ├── css/
-│       └── js/
+│       ├── js/
+│       └── images/
 ├── public/
 │   └── assets/
 │       ├── products/
 │       ├── variants/
 │       ├── banners/
-│       └── logos/
+│       ├── logos/
+│       └── uploads/
 ├── writable/
 │   ├── uploads/
-│   ├── logs/
-│   └── invoices/
+│   └── logs/
 ├── tests/
 ├── app.py
 ├── config.json
@@ -68,93 +72,107 @@ project-root/
 ├── Dockerfile
 ├── huggingface.yml
 ├── .env.example
-└── .gitignore
+├── .gitignore
+└── README.md
 ```
 
-## Instalasi
+## Instalasi Lokal (Windows)
 
-### Windows (Local Development)
-
-1. Clone repository:
+### 1. Clone Repository
 ```bash
 git clone https://github.com/inawatimaulana012/pusatsembako.git
 cd pusatsembako
 ```
 
-2. Buat virtual environment:
+### 2. Buat Virtual Environment
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-3. Install dependencies:
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Copy .env.example ke .env:
+### 4. Setup Environment
 ```bash
 copy .env.example .env
 ```
+Edit `.env` dan ubah `SECRET_KEY` dengan nilai unik.
 
-5. Jalankan aplikasi:
+### 5. Buat Folder Diperlukan
+```bash
+mkdir -p writable\uploads writable\logs
+mkdir -p public\assets\products public\assets\variants public\assets\banners public\assets\logos
+```
+
+### 6. Jalankan Aplikasi
 ```bash
 python app.py
 ```
 
-6. Akses di browser:
-```
-http://localhost:5000
-```
+Akses di browser: `http://localhost:5000`
 
-## Default Login Credentials
+## Akun Default
 
 ### Admin
-- Username: `admin`
-- Password: `admin123`
+- **Username**: admin
+- **Password**: admin123
 
 ### Kasir
-- Username: `kasir01`
-- Password: `kasir01#123`
+- **Username**: kasir1
+- **Password**: kasir123
 
 ## Deploy ke Hugging Face Spaces
 
-1. Buat Space di Hugging Face (Non-AI)
-2. Clone repository Hugging Face Space Anda
-3. Copy semua file project ke Space
-4. Push ke Hugging Face:
+### 1. Buat Hugging Face Spaces
+- Kunjungi https://huggingface.co/spaces
+- Klik "Create new Space"
+- Pilih "Docker" sebagai SDK
+- Buat space
+
+### 2. Push ke Repository
 ```bash
-git add .
-git commit -m "Deploy PUSAT SEMBAKO"
-git push
+git remote add huggingface https://huggingface.co/spaces/YOUR_USERNAME/pusatsembako
+git push huggingface main
 ```
 
-Aplikasi akan otomatis di-deploy.
+### 3. Tunggu Build
+Hugging Face akan otomatis build Docker image dan deploy aplikasi.
 
 ## FAQ
 
-### Bisakah saya mengganti database di Hugging Face?
-Ya, fitur Backup & Restore Database memungkinkan Anda untuk:
-- Download database saat ini
-- Upload database baru
-- Restore database kapan saja
+### Apakah saya bisa lepas pasang file database di Hugging Face?
 
-Fitur ini tersedia di menu Admin > Pengaturan Database.
+**Ya, bisa!** Aplikasi memiliki fitur:
+- **Backup Database**: Download file `.db` dari dashboard admin
+- **Upload Database Baru**: Upload file `.db` baru dari dashboard admin
+- **Restore Database**: Restore backup dari dashboard admin
 
-### Apakah upload gambar berfungsi di Hugging Face?
-Ya, upload gambar disimpan di folder `writable/uploads/` yang bersifat persisten di Hugging Face.
+Untuk production:
+1. Backup database regular dari dashboard admin
+2. Download dan simpan di tempat aman
+3. Jika butuh database baru, upload melalui dashboard admin
+4. Restart aplikasi (otomatis di Hugging Face)
 
-### Bagaimana cara menambah produk?
-1. Login sebagai Admin
-2. Ke menu Kelola Produk
-3. Klik Tambah Produk
-4. Isi data dan upload gambar
-5. Simpan
+### Bagaimana cara upload gambar produk?
+
+Admin dapat upload gambar melalui:
+1. Dashboard Admin → Kelola Produk → Upload Foto Produk
+2. Dashboard Admin → Kelola Varian → Upload Foto Varian
+3. Dashboard Admin → Pengaturan → Upload Logo Toko
+
+Gambar disimpan di `public/assets/` dan `writable/uploads/`
+
+### Apakah support Mobile?
+
+Yes! Bootstrap 5 memastikan responsive di semua ukuran layar.
+
+## Kontribusi
+
+Untuk kontribusi, silakan buat pull request.
 
 ## Lisensi
 
 MIT License
-
-## Support
-
-Hubungi: info@pusatsembako.com

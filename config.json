@@ -1,54 +1,71 @@
 {
   "app_name": "PUSAT SEMBAKO",
   "app_version": "1.0.0",
-  "app_description": "Sistem Penjualan Produk Sembako dengan Manajemen Inventory dan Member Rewards",
-  "theme": {
-    "primary_color": "#2E7D32",
-    "secondary_color": "#F9A825",
-    "support_white": "#FFFFFF",
-    "support_light_gray": "#F5F5F5",
-    "success": "#4CAF50",
-    "warning": "#FFC107",
-    "danger": "#F44336",
-    "info": "#2196F3"
+  "app_description": "Sistem Manajemen Toko Sembako",
+  "flask_env": "production",
+  "debug": false,
+  "database": {
+    "type": "sqlite",
+    "name": "pusat_sembako.db"
+  },
+  "upload": {
+    "folder": "writable/uploads",
+    "max_size": 16777216,
+    "allowed_extensions": [
+      "jpg",
+      "jpeg",
+      "png",
+      "gif",
+      "webp"
+    ]
+  },
+  "pagination": {
+    "per_page": 20
+  },
+  "store_info": {
+    "name": "Pusat Sembako",
+    "address": "Jl. Raya No. 123",
+    "phone": "0888 8888 8888",
+    "email": "info@pusatsembako.com",
+    "logo": "assets/logos/logo.png"
   },
   "payment_methods": {
     "bank_transfer": {
-      "enabled": true,
-      "account_number": "1234 5678 90",
-      "account_name": "Bapak ABCD",
-      "bank_name": "BCA"
+      "name": "Transfer Bank",
+      "account_number": "1234567890",
+      "account_holder": "Bapak ABCD",
+      "bank_name": "Bank Central Asia"
     },
-    "e_wallet": {
-      "enabled": true,
-      "methods": ["Dana", "ShopeePay", "OVO", "GoPay"],
-      "phone_number": "0888 8888 8888"
+    "ewallet": {
+      "name": "E-Wallet",
+      "methods": [
+        "Dana",
+        "ShopeePay",
+        "OVO",
+        "GoPay"
+      ],
+      "phone": "0888 8888 8888"
     },
     "cash": {
+      "name": "Cash",
       "enabled": true
     }
   },
-  "store_info": {
-    "name": "PUSAT SEMBAKO",
-    "phone": "08XX-XXXX-XXXX",
-    "address": "Jl. Contoh No. 123, Kota",
-    "email": "info@pusatsembako.com",
-    "hours": "08:00 - 17:00"
+  "colors": {
+    "primary": "#2E7D32",
+    "secondary": "#F9A825",
+    "success": "#28a745",
+    "warning": "#ffc107",
+    "danger": "#dc3545",
+    "info": "#17a2b8",
+    "light": "#f8f9fa",
+    "dark": "#343a40"
   },
-  "upload_settings": {
-    "max_file_size": 5242880,
-    "allowed_extensions": ["jpg", "jpeg", "png", "gif"],
-    "product_image_path": "public/assets/products/",
-    "variant_image_path": "public/assets/variants/",
-    "banner_path": "public/assets/banners/",
-    "logo_path": "public/assets/logos/"
-  },
-  "pagination": {
-    "items_per_page": 10,
-    "dashboard_recent_items": 5
-  },
-  "points_system": {
-    "point_per_rupiah": 0.01,
-    "minimum_purchase_for_points": 10000
+  "features": {
+    "member_system": true,
+    "reward_system": true,
+    "banner_system": true,
+    "inventory_tracking": true,
+    "multi_user": true
   }
 }
