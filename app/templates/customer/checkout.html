@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-4"><i class="bi bi-bag-check"></i> Checkout</h2>
+
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-person"></i> Data Pemesan</h5>
+                </div>
+                <div class="card-body">
+                    <form id="checkoutForm" method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nama_pemesan" class="form-label">Nama Lengkap *</label>
+                                <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" value="{% if member %}{{ member.nama }}{% endif %}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone_pemesan" class="form-label">Nomor Telepon *</label>
+                                <input type="tel" class="form-control" id="phone_pemesan" name="phone_pemesan" value="{% if member %}{{ member.phone }}{% endif %}" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email_pemesan" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email_pemesan" name="email_pemesan" value="{% if member %}{{ member.email }}{% endif %}">
+                        </div>
+                        <div class="mb-3">
+                            <label for="catatan" class="form-label">Catatan Pesanan</label>
+                            <textarea class="form-control" id="catatan" name="catatan" rows="3" placeholder="Tambahkan catatan khusus untuk pesanan Anda"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-credit-card"></i> Metode Pembayaran</h5>
+                </div>
+                <div class="card-body">
+                    <form id="paymentForm">
+                        <div class="mb-3">
+                            <label class="form-label">Pilih Metode Pembayaran *</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="metode_pembayaran" id="transfer_bank" value="transfer_bank" required onchange="updatePaymentMethod()">
+                                <label class="form-check-label" for="transfer_bank">
+                                    <i class="bi bi-bank"></i> Transfer Bank
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="metode_pembayaran" id="e_wallet" value="e_wallet" onchange="updatePaymentMethod()">
+                                <label class="form-check-label" for="e_wallet">
+                                    <i class="bi bi-wallet"></i> E-Wallet (GoPay, OVO, Dana, ShopeePay)
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="metode_pembayaran" id="cash" value="cash" onchange="updatePaymentMethod()">
+                                <label class="form-check-label" for="cash">
+                                    <i class="bi bi-cash-coin"></i> Cash (Bayar di Tempat)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="paymentDetails" class="alert alert-info" style="display: none;">
+                            <!-- Payment details will be inserted here -->
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card" style="position: sticky; top: 20px;">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-list-check"></i> Ringkasan Pesanan</h5>
+                </div>
+                <div class="card-body">
+                    <div style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;">
+                        {% for item in cart_items %}
+                        <div class="d-flex justify-content-between mb-2 small">
+                            <span>{{ item.variant.product.nama }} ({{ item.qty }}x)</span>
+                            <strong>{{ item.subtotal|currency }}</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong>{{ total|currency }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between" style="font-size: 1.2rem; margin-bottom: 20px;">
+                        <span><strong>Total:</strong></span>
+                        <strong style="color: #F9A825;">{{ total|currency }}</strong>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-lg" style="width: 100%; background-color: #2E7D32; border: none;" onclick="submitCheckout()">
+                        <i class="bi bi-bag-check"></i> Buat Pesanan
+                    </button>
+                    <a href="{{ url_for('customer_cart') }}" class="btn btn-outline-secondary btn-lg" style="width: 100%; margin-top: 10px;">
+                        <i class="bi bi-arrow-left"></i> Kembali
+                    </a>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3" role="alert">
+                <i class="bi bi-exclamation-triangle"></i>
+                <strong>Penting:</strong> Pesanan hanya dapat diambil langsung di Pusat Sembako. Silakan simpan invoice Anda.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const paymentInfo = {{ payment_info|tojson }};
+
+function updatePaymentMethod() {
+    const selectedMethod = document.querySelector('input[name="metode_pembayaran"]:checked').value;
+    const paymentDetails = document.getElementById('paymentDetails');
+
+    if (selectedMethod === 'transfer_bank') {
+        const bank = paymentInfo.bank_transfer;
+        paymentDetails.innerHTML = `
+            <strong><i class="bi bi-bank"></i> Data Transfer Bank</strong>
+            <p class="mb-0 mt-2">
+                No. Rekening: <strong>${bank.account_number}</strong><br>
+                Atas Nama: <strong>${bank.account_name}</strong><br>
+                Bank: <strong>${bank.bank_name}</strong>
+            </p>
+            <p class="small mt-2 mb-0">Silakan transfer sesuai total pesanan dan upload bukti transfer setelah checkout.</p>
+        `;
+        paymentDetails.style.display = 'block';
+    } else if (selectedMethod === 'e_wallet') {
+        const ewallet = paymentInfo.e_wallet;
+        paymentDetails.innerHTML = `
+            <strong><i class="bi bi-wallet"></i> Data E-Wallet</strong>
+            <p class="mb-0 mt-2">
+                Nomor: <strong>${ewallet.phone_number}</strong><br>
+                Metode: ${ewallet.methods.join(', ')}
+            </p>
+            <p class="small mt-2 mb-0">Silakan transfer ke nomor di atas melalui aplikasi e-wallet Anda.</p>
+        `;
+        paymentDetails.style.display = 'block';
+    } else {
+        paymentDetails.innerHTML = `
+            <strong><i class="bi bi-cash-coin"></i> Pembayaran Cash</strong>
+            <p class="mb-0 mt-2">Anda dapat membayar langsung saat mengambil pesanan di Pusat Sembako.</p>
+        `;
+        paymentDetails.style.display = 'block';
+    }
+}
+
+function submitCheckout() {
+    const form = document.getElementById('checkoutForm');
+    const paymentForm = document.getElementById('paymentForm');
+
+    if (!form.checkValidity() || !paymentForm.checkValidity()) {
+        showToast('error', 'Silakan lengkapi semua data yang diperlukan');
+        return;
+    }
+
+    const formData = new FormData(form);
+    const paymentMethod = document.querySelector('input[name="metode_pembayaran"]:checked').value;
+    formData.append('metode_pembayaran', paymentMethod);
+
+    fetch('{{ url_for("customer_checkout") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast('success', data.message);
+            setTimeout(() => {
+                window.location.href = data.invoice_url;
+            }, 1500);
+        } else {
+            showToast('error', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('error', 'Terjadi kesalahan saat membuat pesanan');
+    });
+}
+</script>
+{% endblock %}

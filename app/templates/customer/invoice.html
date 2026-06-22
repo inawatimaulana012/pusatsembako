@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Invoice #{{ order.nomor_invoice }} - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Invoice Header -->
+                    <div class="text-center mb-4 pb-4" style="border-bottom: 2px solid #2E7D32;">
+                        <h1 style="color: #2E7D32;"><i class="bi bi-receipt"></i> PUSAT SEMBAKO</h1>
+                        <p class="text-muted">Invoice Pembelian</p>
+                    </div>
+
+                    <!-- Invoice Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 style="color: #2E7D32;">Informasi Pesanan</h6>
+                            <p class="mb-1">
+                                <strong>No. Invoice:</strong> {{ order.nomor_invoice }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Tanggal:</strong> {{ order.created_at.strftime('%d/%m/%Y %H:%M') }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Status:</strong>
+                                {% if order.status == 'selesai' %}
+                                    <span class="badge bg-success">Selesai</span>
+                                {% elif order.status == 'menunggu_pembayaran' %}
+                                    <span class="badge bg-warning">Menunggu Pembayaran</span>
+                                {% elif order.status == 'menunggu_verifikasi' %}
+                                    <span class="badge bg-warning">Menunggu Verifikasi</span>
+                                {% else %}
+                                    <span class="badge bg-info">{{ order.status|replace('_', ' ')|upper }}</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 style="color: #2E7D32;">Data Pemesan</h6>
+                            <p class="mb-1">
+                                <strong>Nama:</strong> {{ order.nama_pemesan }}
+                            </p>
+                            <p class="mb-1">
+                                <strong>Telepon:</strong> {{ order.phone_pemesan }}
+                            </p>
+                            {% if order.email_pemesan %}
+                            <p class="mb-1">
+                                <strong>Email:</strong> {{ order.email_pemesan }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div class="mb-4">
+                        <h6 style="color: #2E7D32;" class="mb-3">Detail Pesanan</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr style="background-color: #F5F5F5;">
+                                        <th>Produk</th>
+                                        <th class="text-end">Harga</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.order_items %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ item.product.nama }}</strong><br>
+                                            <small class="text-muted">{{ item.variant.nama }}{% if item.variant.ukuran %} ({{ item.variant.ukuran }}){% endif %}</small>
+                                        </td>
+                                        <td class="text-end">{{ item.harga|currency }}</td>
+                                        <td class="text-center">{{ item.qty }}</td>
+                                        <td class="text-end">{{ item.subtotal|currency }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="row mb-4" style="border-top: 2px solid #eee; padding-top: 15px;">
+                        <div class="col-md-8 text-end">
+                            <strong>Total Pesanan:</strong>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <h5 style="color: #F9A825;">{{ order.total_harga|currency }}</h5>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    {% if order.metode_pembayaran != 'cash' %}
+                    <div class="alert alert-info" role="alert">
+                        <h6 class="alert-heading"><i class="bi bi-info-circle"></i> Instruksi Pembayaran</h6>
+                        {% if order.metode_pembayaran == 'transfer_bank' %}
+                        <p class="mb-0">
+                            Silakan transfer ke rekening berikut:
+                        </p>
+                        {% elif order.metode_pembayaran == 'e_wallet' %}
+                        <p class="mb-0">
+                            Silakan transfer melalui aplikasi e-wallet ke nomor yang tersedia.
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Important Notes -->
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Penting!</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Silakan simpan invoice ini sebagai bukti pembelian</li>
+                            <li>Pesanan hanya dapat diambil langsung di Pusat Sembako</li>
+                            <li>Tunjukkan invoice ini saat mengambil pesanan</li>
+                            {% if order.metode_pembayaran != 'cash' %}
+                            <li>Pesanan akan diproses setelah pembayaran diverifikasi</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="button" class="btn btn-outline-primary" onclick="window.print()">
+                            <i class="bi bi-printer"></i> Cetak Invoice
+                        </button>
+                        <a href="{{ url_for('customer_home') }}" class="btn btn-primary" style="background-color: #2E7D32; border: none;">
+                            <i class="bi bi-house"></i> Kembali ke Beranda
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

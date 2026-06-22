@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Keranjang Belanja - PUSAT SEMBAKO{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4"><i class="bi bi-cart"></i> Keranjang Belanja</h2>
+
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            <tr style="background-color: #2E7D32; color: white;">
+                                <th>Produk</th>
+                                <th>Harga</th>
+                                <th>Jumlah</th>
+                                <th>Subtotal</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <strong>{{ item.variant.product.nama }}</strong><br>
+                                    <small class="text-muted">{{ item.variant.nama }}{% if item.variant.ukuran %} ({{ item.variant.ukuran }}){% endif %}</small>
+                                </td>
+                                <td>{{ item.variant.harga|currency }}</td>
+                                <td>
+                                    <div class="input-group input-group-sm" style="width: 120px;">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateCartQty({{ item.variant.id }}, {{ item.qty - 1 }})">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <input type="number" class="form-control text-center" value="{{ item.qty }}" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateCartQty({{ item.variant.id }}, {{ item.qty + 1 }})">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>{{ item.subtotal|currency }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger" onclick="removeFromCart({{ item.variant.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card" style="position: sticky; top: 20px;">
+                <div class="card-header" style="background-color: #2E7D32; color: white;">
+                    <h5 class="card-title mb-0"><i class="bi bi-calculator"></i> Ringkasan Pesanan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <strong>{{ total|currency }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3" style="border-bottom: 2px solid #ddd; padding-bottom: 10px;">
+                        <span>Biaya Pengiriman:</span>
+                        <strong>Gratis (Ambil di Toko)</strong>
+                    </div>
+                    <div class="d-flex justify-content-between" style="font-size: 1.3rem; margin-bottom: 20px;">
+                        <span><strong>Total:</strong></span>
+                        <strong style="color: #F9A825;">{{ total|currency }}</strong>
+                    </div>
+
+                    <a href="{{ url_for('customer_checkout') }}" class="btn btn-primary btn-lg" style="width: 100%; background-color: #2E7D32; border: none; margin-bottom: 10px;">
+                        <i class="bi bi-bag-check"></i> Lanjut ke Checkout
+                    </a>
+
+                    <button type="button" class="btn btn-outline-danger btn-lg" style="width: 100%;" onclick="clearCart()">
+                        <i class="bi bi-trash"></i> Kosongkan Keranjang
+                    </button>
+                </div>
+            </div>
+
+            <div class="alert alert-info mt-3" role="alert">
+                <i class="bi bi-info-circle"></i>
+                <strong>Info:</strong> Pesanan hanya dapat diambil langsung di Pusat Sembako. Tidak ada layanan pengiriman.
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        <i class="bi bi-exclamation-triangle"></i> Keranjang Anda kosong.
+        <a href="{{ url_for('customer_products') }}" class="alert-link">Mulai belanja sekarang</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
